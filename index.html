@@ -1,10 +1,202 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Mi Calculadora</title>
-  </head>
-  <body>
-    <h1>¡Hola, GitHub Pages está funcionando!</h1>
-    <p>Agrega aquí tu calculadora o tu contenido.</p>
-  </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Matrices PRO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-family: 'Poppins', sans-serif;
+            --c-a: #3498db; --bg-a: rgba(52, 152, 219, 0.1);
+            --c-b: #2ecc71; --bg-b: rgba(46, 204, 113, 0.1);
+            --c-c: #f1c40f; --bg-c: rgba(241, 196, 15, 0.1);
+            --c-result: #9b59b6; --bg-result: rgba(155, 89, 182, 0.1);
+            --c-error: #e74c3c; --bg-error: rgba(231, 76, 60, 0.1);
+            --c-success: #27ae60; --bg-success: rgba(39, 174, 96, 0.1);
+            --c-text: #34495e;
+            --c-bg: #ecf0f1;
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--c-text);
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container { max-width: 1400px; margin: auto; }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .highlight-tutorial {
+            box-shadow: 0 0 0 4px var(--c-a), 0 8px 32px 0 rgba(52, 152, 219, 0.5);
+            transform: scale(1.01);
+        }
+
+        header { text-align: center; }
+        header h1 { font-size: 2.5em; color: #2c3e50; }
+        header p { font-size: 1.2em; color: #7f8c8d; }
+
+        .matrices-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .matrix-container {
+            border-left: 7px solid;
+            transition: transform 0.3s ease;
+        }
+        .matrix-container:hover { transform: translateY(-5px); }
+        .matrix-container.matrix-a { border-color: var(--c-a); }
+        .matrix-container.matrix-b { border-color: var(--c-b); }
+        .matrix-container.matrix-c { border-color: var(--c-c); }
+
+        .matrix-container h3 { font-size: 1.5em; margin-bottom: 15px; }
+        .matrix-container.matrix-a h3 { color: var(--c-a); }
+        .matrix-container.matrix-b h3 { color: var(--c-b); }
+        .matrix-container.matrix-c h3 { color: var(--c-c); }
+
+        .matrix-info { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 0.9em; }
+        .matrix-info .dimensions-controls { display: flex; align-items: center; gap: 5px; background: #e9ecef; padding: 3px 8px; border-radius: 12px;}
+        .matrix-info .dimensions-controls input { width: 45px; text-align: center; border: 1px solid #ccc; border-radius: 5px; padding: 2px; }
+        
+        .matrix-grid { display: grid; gap: 8px; margin-bottom: 15px; }
+        .matrix-grid input {
+            width: 100%; height: 50px; text-align: center; font-size: 1.1em;
+            border: 2px solid #dde2e7; border-radius: 10px; transition: all 0.2s ease;
+        }
+        .matrix-grid input:focus {
+            outline: none; transform: scale(1.05);
+            box-shadow: 0 0 0 3px var(--bg-a);
+        }
+        .matrix-a .matrix-grid input:focus { border-color: var(--c-a); box-shadow: 0 0 0 3px var(--bg-a); }
+        .matrix-b .matrix-grid input:focus { border-color: var(--c-b); box-shadow: 0 0 0 3px var(--bg-b); }
+        .matrix-c .matrix-grid input:focus { border-color: var(--c-c); box-shadow: 0 0 0 3px var(--bg-c); }
+
+        .matrix-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn {
+            flex-grow: 1; padding: 12px; border: none; border-radius: 10px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            -webkit-appearance: none;
+        }
+        .btn:disabled {
+            background: #bdc3c7 !important;
+            color: #7f8c8d !important;
+            cursor: not-allowed;
+            transform: none;
+            background-image: none !important;
+        }
+        .btn-fill { background-color: #3498db; color: white; }
+        .btn-clear { background-color: #e74c3c; color: white; }
+        .btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        .op-section h3, .tab-content h4 { margin-bottom: 15px; border-bottom: 2px solid var(--c-bg); padding-bottom: 10px; color: #2c3e50; }
+        .op-group { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
+        .op-group select, .op-group input { padding: 10px; border-radius: 8px; border: 2px solid #dde2e7; font-family: var(--font-family); font-size: 1em; }
+        .op-group input[type="number"] { width: 80px; }
+        
+        .btn-op {
+            background-image: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            color: white; padding: 10px 20px;
+        }
+
+        .tabs { display: flex; margin-bottom: 15px; background-color: #e9ecef; border-radius: 12px; padding: 5px; }
+        .tab-btn { flex: 1; padding: 10px; background: transparent; border: none; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .tab-btn.active { background: white; color: #2575fc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #results_container .result-title { font-size: 1.4em; margin-bottom: 15px; color: #2c3e50; }
+        .result-matrix table { border-collapse: collapse; margin: 10px auto; box-shadow: var(--shadow);}
+        .result-matrix table td {
+            min-width: 45px; height: 45px; padding: 8px; text-align: center;
+            border: 2px solid #bdc3c7; font-weight: 600; font-size: 1em;
+            background-color: #fff;
+        }
+
+        .result-final table { background: var(--bg-result); }
+        .result-final table td { border-color: var(--c-result); color: var(--c-result); }
+        
+        .step { border-left: 4px solid; padding-left: 15px; margin-bottom: 20px; }
+        .step.color-a { border-color: var(--c-a); }
+        .step.color-b { border-color: var(--c-b); }
+        .step.color-c { border-color: var(--c-c); }
+        .step.color-result { border-color: var(--c-result); }
+        .step-title { font-weight: 600; margin-bottom: 5px; color: #7f8c8d; }
+
+        #history_log { max-height: 250px; overflow-y: auto; padding-right: 10px; border: 1px solid #e9ecef; border-radius: 8px; padding: 10px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; transition: background-color 0.2s; }
+        .history-item:hover { background-color: #f9f9f9; }
+        .history-item:last-child { border-bottom: none; }
+        .history-item span:first-child { color: #7f8c8d; font-size: 0.9em; }
+        .history-item strong { flex-grow: 1; text-align: right; padding-left: 15px;}
+
+        .btn-export {
+            font-size: 1.2em; padding: 15px 30px;
+            background-image: linear-gradient(to right, #1d976c 0%, #93f9b9  51%, #1d976c  100%);
+            color: white; border-radius: 50px;
+            background-size: 200% auto;
+            transition: background-position 0.5s;
+        }
+        .btn-export:hover { background-position: right center; }
+        
+        #notification_container { position: fixed; top: 20px; right: 20px; z-index: 2000; width: 320px; }
+        .toast {
+            background: #fff; padding: 15px 20px; border-radius: 10px; margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 5px solid;
+            animation: slideIn 0.5s, fadeOut 0.5s 4.5s;
+            display: flex; flex-direction: column;
+        }
+        .toast strong { font-size: 1.1em; margin-bottom: 5px; }
+        .toast.success { border-color: var(--c-success); color: var(--c-success);}
+        .toast.error { border-color: var(--c-error); color: var(--c-error); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; padding: 30px;
+            border-radius: 20px; width: 90%; max-width: 600px;
+            box-shadow: var(--shadow);
+        }
+        .modal-content h2 { margin-bottom: 15px; color: #2c3e50; }
+
+        #equation_solver_matrices { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
+        #equation_solver_matrices .matrix-grid { margin-bottom: 0; }
+    </style>
+</head>
+<body>
+... (continúa todo el contenido HTML que enviaste) ...
+</body>
 </html>
